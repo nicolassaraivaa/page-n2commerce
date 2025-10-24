@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Particles } from "../ui/particles";
 import { AuroraText } from "../ui/aurora-text";
 import { Safari } from "../ui/safari";
 import { ShineBorder } from "../ui/shine-border";
+import { InteractiveHoverButton } from "../ui/interactive-hover-button";
 
 export default function Hero() {
   const scrollToContact = () => {
@@ -47,15 +47,15 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-semibold text-primary-50 mb-6 md:leading-20 leading-14"
+          className="text-5xl md:text-7xl font-medium text-primary-50 mb-6 md:leading-18 leading-14 tracking-tighter text-balance"
         >
           Sua loja virtual
           <br />
           <AuroraText
             colors={["#8ac4ff", "#53a4ff", "#2b7eff", "#155dfc"]}
-            className="font-bold"
+            className="font-medium"
           >
-            Pronta em Dias
+            pronta em dias
           </AuroraText>
         </motion.h1>
 
@@ -78,24 +78,22 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <Button
-            size="lg"
+          <InteractiveHoverButton
+            className="text-white"
             onClick={scrollToContact}
-            className="bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-6 text-lg rounded-xl shadow-2xl shadow-primary-500/30 transition-all duration-300 hover:scale-105"
           >
-            Comece Agora
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+            Comece agora
+          </InteractiveHoverButton>
 
           <Button
             size="lg"
-            variant="outline"
+            variant="link"
             onClick={() =>
               document
                 .getElementById("como-funciona")
                 ?.scrollIntoView({ behavior: "smooth" })
             }
-            className="border border-white/20 bg-white/5 backdrop-blur-sm text-white hover:text-white hover:bg-primary-200/10 px-8 py-6 text-lg rounded-xl transition-all duration-300"
+            className="backdrop-blur-sm text-white hover:text-white px-8 py-6 text-[16px] rounded-full transition-all duration-300"
           >
             Como Funciona
           </Button>
