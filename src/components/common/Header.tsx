@@ -73,7 +73,7 @@ export default function Header() {
               onClick={() => scrollToSection("inicio")}
               className="flex items-center gap-2 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-purple-500 to-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 text-white font-extrabold">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-500 to-primary-900 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 text-white font-extrabold">
                 N2
               </div>
               <span className="text-xl font-bold text-white">Commerce</span>
@@ -100,7 +100,7 @@ export default function Header() {
             <div className="hidden lg:block">
               <Button
                 onClick={() => scrollToSection("contato")}
-                className="bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 rounded-xl shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-105"
+                className="bg-linear-to-r from-primary-500 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white px-6 shadow-lg shadow-primary-500/20 rounded-xl transition-all duration-300 hover:scale-105"
               >
                 Começar Agora
               </Button>
@@ -147,7 +147,7 @@ export default function Header() {
                 ))}
                 <Button
                   onClick={() => scrollToSection("contato")}
-                  className="mt-4 bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-xl shadow-lg shadow-orange-500/30"
+                  className="mt-4 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-xl shadow-lg shadow-primary-500/30"
                 >
                   Começar Agora
                 </Button>
