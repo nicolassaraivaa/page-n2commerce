@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
+import { AnimatedShinyText } from "../ui/animated-shiny-text";
+import { ShinyButton } from "../ui/shiny-button";
 
 const plans = [
   {
@@ -19,7 +21,7 @@ const plans = [
     popular: false,
   },
   {
-    name: "Professional",
+    name: "Profissional",
     price: "R$ 197",
     period: "/mês",
     description: "Para negócios em crescimento",
@@ -36,7 +38,7 @@ const plans = [
   },
   {
     name: "Enterprise",
-    price: "Personalizado",
+    price: "Personalizar",
     period: "",
     description: "Soluções sob medida",
     features: [
@@ -57,7 +59,7 @@ export default function Pricing() {
   };
 
   return (
-    <section id="planos" className="py-32 bg-linear-to-b from-white to-gray-50">
+    <section id="planos" className="py-32 bg-primary-950">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -66,10 +68,10 @@ export default function Pricing() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-6xl font-medium text-gray-900 mb-6 tracking-tighter text-white">
             Planos Transparentes
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Escolha o plano ideal para o seu negócio. Sem taxas ocultas, sem
             surpresas.
           </p>
@@ -86,49 +88,60 @@ export default function Pricing() {
               className="relative"
             >
               {plan.popular && (
-                <div className="absolute -top-5 left-0 right-0 flex justify-center">
-                  <div className="bg-linear-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
-                    <Sparkles className="w-4 h-4" />
-                    Mais Popular
+                <div className="absolute -top-7 left-0 right-0 flex justify-center z-1">
+                  <div className="bg-linear-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
+                    <AnimatedShinyText className="flex items-center gap-2 text-white/80">
+                      <Sparkles className="w-4 h-4" />
+                      Mais Popular
+                    </AnimatedShinyText>
                   </div>
                 </div>
               )}
 
               <div
-                className={`bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 h-full ${
+                className={`bg-transparent rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 h-full ${
                   plan.popular
-                    ? "border-orange-500 scale-105"
-                    : "border-gray-200"
+                    ? "border-2 border-primary-500 shadow-primary/25 scale-105"
+                    : "border border-white/25"
                 }`}
               >
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-semibold text-white mb-2 tracking-tighter">
                   {plan.name}
                 </h3>
-                <p className="text-gray-600 mb-6">{plan.description}</p>
+                <p className="text-gray-300 mb-6">{plan.description}</p>
 
                 <div className="mb-8">
-                  <span className="text-5xl font-bold text-gray-900">
+                  <span className="text-5xl font-bold text-white tracking-tighter">
                     {plan.price}
                   </span>
-                  <span className="text-gray-600 text-lg">{plan.period}</span>
+                  <span className="text-gray-300 text-lg">{plan.period}</span>
                 </div>
 
-                <Button
-                  onClick={scrollToContact}
-                  className={`w-full mb-8 py-6 text-lg rounded-xl transition-all duration-300 ${
-                    plan.popular
-                      ? "bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30"
-                      : "bg-gray-900 hover:bg-gray-800 text-white"
-                  }`}
-                >
-                  Começar Agora
-                </Button>
+                {plan.popular ? (
+                  <ShinyButton
+                    onClick={scrollToContact}
+                    className={`w-full mb-8 py-3 text-lg rounded-xl transition-all duration-300 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30`}
+                  >
+                    Começar agora
+                  </ShinyButton>
+                ) : (
+                  <Button
+                    onClick={scrollToContact}
+                    className={`w-full mb-8 py-6 text-lg rounded-xl transition-all duration-300 ${
+                      plan.popular
+                        ? "bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30"
+                        : "bg-gray-900 hover:bg-gray-800 text-white"
+                    }`}
+                  >
+                    Começar agora
+                  </Button>
+                )}
 
                 <ul className="space-y-4">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
