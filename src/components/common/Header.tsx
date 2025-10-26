@@ -60,10 +60,10 @@ export default function Header() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 max-w-7xl mx-auto my-2 rounded-full z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-[#1a1f3a]/95 backdrop-blur-lg shadow-lg"
-            : "bg-transparent"
+            ? "bg-[#1a1f3a]/50 backdrop-blur-lg shadow-lg border border-white/5"
+            : "bg-transparent border border-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6">
@@ -73,10 +73,12 @@ export default function Header() {
               onClick={() => scrollToSection("inicio")}
               className="flex items-center gap-2 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-500 to-primary-900 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 text-white font-extrabold">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary-500 to-primary-900 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 text-white font-bold tracking-tighter">
                 N2
               </div>
-              <span className="text-xl font-bold text-white">Commerce</span>
+              <span className="text-xl font-semibold text-white tracking-tighter">
+                Commerce
+              </span>
             </button>
 
             {/* Desktop Navigation */}
@@ -100,7 +102,7 @@ export default function Header() {
             <div className="hidden lg:block">
               <Button
                 onClick={() => scrollToSection("contato")}
-                className="bg-linear-to-r from-primary-500 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white px-6 shadow-lg shadow-primary-500/20 rounded-xl transition-all duration-300 hover:scale-105"
+                className="tracking-tighter bg-linear-to-r from-primary-500 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white px-6 shadow-lg shadow-primary-500/20 rounded-xl transition-all duration-300 hover:scale-105"
               >
                 Começar Agora
               </Button>
@@ -128,7 +130,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="fixed top-20 left-0 right-0 z-40 lg:hidden bg-[#1a1f3a]/98 backdrop-blur-lg border-b border-white/10"
+            className="fixed top-25 left-0 right-0 mx-4 rounded-3xl z-40 lg:hidden bg-[#1a1f3a]/50 backdrop-blur-lg shadow-lg border border-white/5"
           >
             <nav className="max-w-7xl mx-auto px-6 py-6">
               <div className="flex flex-col gap-2">
@@ -147,7 +149,7 @@ export default function Header() {
                 ))}
                 <Button
                   onClick={() => scrollToSection("contato")}
-                  className="mt-4 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-xl shadow-lg shadow-primary-500/30"
+                  className=" mt-4 tracking-tighter bg-linear-to-r from-primary-500 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white px-6 shadow-lg shadow-primary-500/20 rounded-xl transition-all duration-300 hover:scale-105"
                 >
                   Começar Agora
                 </Button>
