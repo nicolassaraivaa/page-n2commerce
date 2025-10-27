@@ -71,7 +71,7 @@ export default function Testimonials() {
       id="depoimentos"
       className="min-h-screen pb-50 py-20 bg-linear-to-b from-primary-950 to-gray-950 from-85%"
     >
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -79,10 +79,10 @@ export default function Testimonials() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-4xl md:text-6xl font-medium text-white mb-6 tracking-tighter">
+          <h2 className="text-4xl max-md:px-6 md:text-6xl font-medium text-white mb-6 tracking-tighter">
             O Que Nossos Clientes Dizem?
           </h2>
-          <p className="relative text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="relative max-md:px-6 text-xl text-gray-300 max-w-2xl mx-auto">
             Histórias reais de empreendedores que{" "}
             <Highlighter color="#2e70ff5c" action="underline">
               transformaram seus negócios
@@ -92,7 +92,7 @@ export default function Testimonials() {
 
         <div className="relative flex w-full flex-col items-center justify-center">
           <ScrollVelocityContainer className="w-full">
-            <ScrollVelocityRow baseVelocity={6} direction={1}>
+            <ScrollVelocityRow baseVelocity={2} direction={1}>
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={index}
@@ -139,7 +139,7 @@ export default function Testimonials() {
             </ScrollVelocityRow>
 
             <ScrollVelocityRow
-              baseVelocity={6}
+              baseVelocity={3}
               direction={-1}
               className="mt-6 relative"
             >
