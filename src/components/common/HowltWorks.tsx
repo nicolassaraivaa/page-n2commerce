@@ -15,7 +15,7 @@ const steps = [
       "Selecione o plano ideal para o seu negócio. Tudo transparente e sem taxas ocultas.",
     color: "from-purple-500 to-pink-500",
     backgroundType: "image",
-    bg: "/plan.png",
+    bg: "/video-pricing.mp4",
   },
   {
     icon: Palette,
@@ -274,11 +274,14 @@ const renderBackground = (step: (typeof steps)[0]) => {
   switch (step.backgroundType) {
     case "image":
       return (
-        <div className="w-full h-full -z-10">
-          <img
-            src={step.bg || ""}
-            className="w-full h-full object-cover"
-            alt={step.title}
+        <div className="w-full h-[140px] md:h-full -z-10">
+          <video
+            src="/video-pricing.mp4"
+            className="w-full h-full object-cover object-top mask-b-from-20% mask-b-to-100%"
+            autoPlay
+            loop
+            muted
+            playsInline
           />
         </div>
       );
@@ -304,7 +307,7 @@ const renderBackground = (step: (typeof steps)[0]) => {
       );
     case "suport":
       return (
-        <div className="relative flex h-[190px] w-full flex-col items-center justify-center -z-10 mask-radial-[100%_100%] mask-radial-from-20% mask-radial-to-100% mask-radial-at-top">
+        <div className="relative flex h-[130px] w-full flex-col items-center justify-center -z-10 mask-radial-[100%_100%] mask-radial-from-20% mask-radial-to-100% mask-radial-at-top">
           <OrbitingCircles iconSize={30}>
             <icons.whatsapp />
             <icons.googleDrive />
