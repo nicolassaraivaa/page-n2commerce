@@ -1,11 +1,11 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "new-york",
-  "rsc": false,
+  "rsc": true,
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/index.css",
+    "css": "_legacy_backup/src-vite/index.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
@@ -18,7 +18,5 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {
-    "@magicui": "https://magicui.design/r/{name}.json"
-  }
+  "registries": {}
 }

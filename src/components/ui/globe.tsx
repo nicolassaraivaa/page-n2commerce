@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef } from "react";
 import createGlobe, { type COBEOptions } from "cobe";
 import { useMotionValue, useSpring } from "motion/react";
