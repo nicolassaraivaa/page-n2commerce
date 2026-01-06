@@ -51,8 +51,7 @@ export async function createTenantAction(prevState: any, formData: FormData) {
   }
 
   // 3. Call Main Backend API
-  const backendUrl = "http://localhost:3001";
-  console.log("Onboarding: Calling Backend API at", backendUrl);
+  const backendUrl = process.env.BACKEND_API_URL || "http://localhost:3001";
 
   try {
     const response = await fetch(`${backendUrl}/api/admin/create-tenant`, {
@@ -96,5 +95,6 @@ export async function createTenantAction(prevState: any, formData: FormData) {
   }
 
   // If successful, redirect
-  redirect("http://localhost:3001/authentication");
+  const loginUrl = process.env.BACKEND_LOGIN_URL || "http://localhost:3001/authentication";
+  redirect(loginUrl);
 }
