@@ -1,63 +1,87 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
 import { AnimatedShinyText } from "../ui/animated-shiny-text";
 import { ShinyButton } from "../ui/shiny-button";
+import { cn } from "@/lib/utils";
 
-const plans = [
-  {
-    name: "Starter",
-    price: "R$ 97",
-    period: "/mês",
-    description: "Perfeito para quem está começando",
-    features: [
-      "Layout personalizado",
-      "Até 100 produtos",
-      "Hospedagem incluída",
-      "Certificado SSL",
-      "Suporte por email",
-      "Painel administrativo",
-    ],
-    popular: false,
-  },
-  {
-    name: "Profissional",
-    price: "R$ 197",
-    period: "/mês",
-    description: "Para negócios em crescimento",
-    features: [
-      "Tudo do Starter",
-      "Produtos ilimitados",
-      "Suporte prioritário",
-      "Integração com redes sociais",
-      "Relatórios avançados",
-      "Múltiplos métodos de pagamento",
-      "SEO otimizado",
-    ],
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Personalizar",
-    period: "",
-    description: "Soluções sob medida",
-    features: [
-      "Tudo do Professional",
-      "Desenvolvimento customizado",
-      "Gerente de conta dedicado",
-      "Treinamento da equipe",
-      "Integrações personalizadas",
-      "SLA garantido",
-    ],
-    popular: false,
-  },
-];
+import { createCheckoutSession } from "@/actions/checkout";
 
 export default function Pricing() {
-  const scrollToContact = () => {
-    document.getElementById("contato")?.scrollIntoView({ behavior: "smooth" });
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly"
+  );
+
+  const handleSubscribe = async (priceId?: string) => {
+    if (!priceId) return;
+    await createCheckoutSession(priceId);
   };
+
+  const plans = [
+    {
+      name: "Starter",
+      price: billingCycle === "monthly" ? "R$ 98" : "R$ 900",
+      period: billingCycle === "monthly" ? "/mês" : "/ano",
+      priceId:
+        billingCycle === "monthly"
+          ? process.env.NEXT_PUBLIC_PRICE_ID_START
+          : process.env.NEXT_PUBLIC_PRICE_ID_START_ANNUAL,
+      description: "Perfeito para validar ideias",
+      features: [
+        "Até 50 produtos",
+        "Até 100 pedidos/mês",
+        "1 administrador",
+        "Subdomínio gratuito",
+        "Tema Padrão",
+        "Suporte por email (48h)",
+      ],
+      popular: false,
+    },
+    {
+      name: "Profissional",
+      price: billingCycle === "monthly" ? "R$ 198" : "R$ 1.822",
+      period: billingCycle === "monthly" ? "/mês" : "/ano",
+      priceId:
+        billingCycle === "monthly"
+          ? process.env.NEXT_PUBLIC_PRICE_ID_PROFESSIONAL
+          : process.env.NEXT_PUBLIC_PRICE_ID_PROFESSIONAL_ANNUAL,
+      description: "Para negócios em crescimento",
+      features: [
+        "Até 500 produtos",
+        "Até 1.000 pedidos/mês",
+        "5 administradores",
+        "Domínio personalizado",
+        "Personalização avançada",
+        "Cupons e Promoções",
+        "Recuperação de Carrinho",
+        "Sem marca d'água",
+      ],
+      popular: true,
+    },
+    {
+      name: "Enterprise",
+      price: billingCycle === "monthly" ? "R$ 498" : "R$ 4.582",
+      period: billingCycle === "monthly" ? "/mês" : "/ano",
+      priceId:
+        billingCycle === "monthly"
+          ? process.env.NEXT_PUBLIC_PRICE_ID_ENTERPRISE
+          : process.env.NEXT_PUBLIC_PRICE_ID_ENTERPRISE_ANNUAL,
+      description: "Alta escala e desempenho",
+      features: [
+        "Produtos Ilimitados",
+        "Pedidos Ilimitados",
+        "Admins Ilimitados",
+        "Múltiplos domínios",
+        "Acesso HTML/CSS",
+        "Gerente dedicado",
+        "API e Integrações",
+        "Infraestrutura prioritária",
+      ],
+      popular: false,
+    },
+  ];
 
   return (
     <section id="planos" className="py-32 bg-primary-950">
@@ -67,15 +91,53 @@ export default function Pricing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-6xl font-medium text-gray-900 mb-6 tracking-tighter text-white">
             Planos Transparentes
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
             Escolha o plano ideal para o seu negócio. Sem taxas ocultas, sem
             surpresas.
           </p>
+
+          {/* Billing Cycle Toggle */}
+          <div className="flex items-center justify-center gap-4">
+            <span
+              className={cn(
+                "text-sm font-medium transition-colors",
+                billingCycle === "monthly" ? "text-white" : "text-gray-400"
+              )}
+            >
+              Mensal
+            </span>
+            <button
+              onClick={() =>
+                setBillingCycle(
+                  billingCycle === "monthly" ? "yearly" : "monthly"
+                )
+              }
+              className="relative w-14 h-7 bg-primary-900 rounded-full border border-primary-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-primary-950"
+            >
+              <div
+                className={cn(
+                  "absolute top-1 left-1 w-4 h-4 bg-primary-500 rounded-full transition-transform",
+                  billingCycle === "yearly" && "translate-x-7"
+                )}
+              />
+            </button>
+            <span
+              className={cn(
+                "text-sm font-medium transition-colors",
+                billingCycle === "yearly" ? "text-white" : "text-gray-400"
+              )}
+            >
+              Anual{" "}
+              <span className="ml-1 text-xs text-primary-400 font-normal">
+                (Economize ~8%)
+              </span>
+            </span>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-8 max-w-6xl mx-auto">
@@ -100,52 +162,54 @@ export default function Pricing() {
               )}
 
               <div
-                className={`bg-transparent rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 h-full ${
+                className={`bg-transparent rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col ${
                   plan.popular
                     ? "border-2 border-primary-500 shadow-primary/25 scale-105"
                     : "border border-white/25"
                 }`}
               >
-                <h3 className="text-2xl font-semibold text-white mb-2 tracking-tighter">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-300 mb-6">{plan.description}</p>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold text-white mb-2 tracking-tighter">
+                    {plan.name}
+                  </h3>
+                  <p className="text-gray-300 mb-6">{plan.description}</p>
 
-                <div className="mb-8">
-                  <span className="text-5xl font-bold text-white tracking-tighter">
-                    {plan.price}
-                  </span>
-                  <span className="text-gray-300 text-lg">{plan.period}</span>
+                  <div className="mb-8">
+                    <span className="text-5xl font-bold text-white tracking-tighter">
+                      {plan.price}
+                    </span>
+                    <span className="text-gray-300 text-lg">{plan.period}</span>
+                  </div>
+
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <span className="text-gray-300">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
                 {plan.popular ? (
                   <ShinyButton
-                    onClick={scrollToContact}
-                    className={`w-full mb-8 py-3 text-lg rounded-xl transition-all duration-300 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30`}
+                    onClick={() => handleSubscribe(plan.priceId)}
+                    className={`w-full py-3 text-lg rounded-xl transition-all duration-300 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30`}
                   >
-                    Começar agora
+                    Assinar agora
                   </ShinyButton>
                 ) : (
                   <Button
-                    onClick={scrollToContact}
-                    className={`w-full mb-8 py-6 text-lg rounded-xl transition-all duration-300 ${
+                    onClick={() => handleSubscribe(plan.priceId)}
+                    className={`w-full py-6 text-lg rounded-xl transition-all duration-300 ${
                       plan.popular
                         ? "bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30"
                         : "bg-gray-900 hover:bg-gray-800 text-white"
                     }`}
                   >
-                    Começar agora
+                    Assinar agora
                   </Button>
                 )}
-
-                <ul className="space-y-4">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-gray-300">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </motion.div>
           ))}
