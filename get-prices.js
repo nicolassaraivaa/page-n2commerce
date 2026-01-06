@@ -2,7 +2,9 @@ const Stripe = require("stripe");
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.error("Error: STRIPE_SECRET_KEY environment variable is not set");
-  console.error("Please set it before running: export STRIPE_SECRET_KEY=sk_test_...");
+  console.error(
+    "Please set it before running: export STRIPE_SECRET_KEY=sk_test_..."
+  );
   process.exit(1);
 }
 
