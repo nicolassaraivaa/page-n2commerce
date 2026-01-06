@@ -1,22 +1,69 @@
+import { stripe } from "@/lib/stripe";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-export default function SetupPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">
-      <Suspense fallback={<div>Carregando...</div>}>
-        <SetupContent />
-      </Suspense>
-    </div>
-  );
+interface SetupPageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-// Separate component to use useSearchParams (requires Suspense boundary)
-import { redirect } from "next/navigation";
-import Image from "next/image";
+export default async function SetupPage({ searchParams }: SetupPageProps) {
+  const { session_id } = await searchParams;
+  const sessionId = Array.isArray(session_id) ? session_id[0] : session_id;
 
-function SetupContent() {
-  // We will implement the session verification logic here later.
-  // For now, just a visual placeholder.
+  if (!sessionId) {
+    redirect("/payment-error");
+  }
+
+  console.log("SetupPage: Checking session", sessionId);
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log("SetupPage: Session retrieved", {
+      id: session.id,
+      payment_status: session.payment_status,
+      status: session.status,
+    });
+
+    // Accept 'paid' OR 'no_payment_required' (for 100% off coupons or trials)
+    if (
+      session.payment_status !== "paid" &&
+      session.payment_status !== "no_payment_required"
+    ) {
+      console.log("SetupPage: Payment not paid. Redirecting.");
+      redirect("/payment-error");
+    }
+
+    console.log("SetupPage: Payment verified. Rendering form.");
+    // Success! Render the setup form.
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">
+        <Suspense fallback={<div>Carregando...</div>}>
+          <SetupContent
+            customerEmail={session.customer_details?.email || ""}
+            customerName={session.customer_details?.name || ""}
+            sessionId={sessionId}
+          />
+        </Suspense>
+      </div>
+    );
+  } catch (error) {
+    console.error("Error retrieving Stripe session:", error);
+    redirect("/payment-error");
+  }
+}
+
+import { SetupForm } from "@/components/setup/setup-form";
+
+// Client component for the UI
+function SetupContent({
+  customerEmail,
+  customerName,
+  sessionId,
+}: {
+  customerEmail: string;
+  customerName: string;
+  sessionId: string;
+}) {
   return (
     <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center">
       <div className="mb-6 flex justify-center">
@@ -38,23 +85,13 @@ function SetupContent() {
       </div>
       <h1 className="text-2xl font-bold mb-2">Pagamento Confirmado! 🎉</h1>
       <p className="text-gray-600 mb-6">
-        Sua assinatura foi ativada com sucesso.
-        <br />
-        Agora vamos configurar sua loja.
+        Obrigado, {customerName}.<br />
+        Vamos ativar sua loja agora mesmo.
       </p>
 
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-left">
-        <p className="text-sm text-blue-800 font-medium">Próximos passos:</p>
-        <ul className="text-sm text-blue-600 list-disc list-inside mt-2 space-y-1">
-          <li>Escolher o nome da loja</li>
-          <li>Definir seu subdomínio</li>
-          <li>Criar usuário administrativo</li>
-        </ul>
+      <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 text-left">
+        <SetupForm sessionId={sessionId} customerEmail={customerEmail} />
       </div>
-
-      <button className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors">
-        Continuar Configuração
-      </button>
     </div>
   );
 }
