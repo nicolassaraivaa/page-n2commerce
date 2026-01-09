@@ -15,7 +15,7 @@ export default function Footer() {
           </div>
 
           <div className="text-gray-400 text-center md:text-right">
-            <p>&copy; 2025 N2Commerce</p>
+            <p>&copy; {new Date().getFullYear()} N2Commerce</p>
             <p className="text-sm">Todos os direitos reservados</p>
           </div>
         </div>

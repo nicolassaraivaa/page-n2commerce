@@ -77,7 +77,7 @@ export default function Contact() {
                   <h3 className="text-white font-semibold tracking-tighter text-lg mb-1">
                     Email
                   </h3>
-                  <p className="text-gray-300 ">contato@n2commerce.com</p>
+                  <p className="text-gray-300 ">n2commercee@gmail.com</p>
                 </div>
               </div>
 
@@ -89,7 +89,9 @@ export default function Contact() {
                   <h3 className="text-white font-semibold tracking-tighter text-lg mb-1">
                     Telefone
                   </h3>
-                  <p className="text-gray-300">+55 (11) 9999-9999</p>
+                  <p className="text-gray-300">
+                    (11) 98880-4583 ou (14) 99666-1883
+                  </p>
                 </div>
               </div>
 
