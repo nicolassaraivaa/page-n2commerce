@@ -1,7 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Particles } from "../ui/particles";
+import dynamic from "next/dynamic";
+
+const Particles = dynamic(
+  () => import("../ui/particles").then((mod) => mod.Particles),
+  { ssr: false }
+);
 import { AuroraText } from "../ui/aurora-text";
 import { Safari } from "../ui/safari";
 import { ShineBorder } from "../ui/shine-border";
@@ -103,7 +108,7 @@ export default function Hero() {
       <motion.div className="absolute rounded-xl shadow-2xl shadow-primary-500/50 md:-bottom-[55%] md:w-[1200px] max-sm:hidden z-20">
         <ShineBorder
           shineColor={["#308af1", "#00d9ff"]}
-          className="scale-y-[102%] scale-x-[101%]"
+          className="scale-y-102% scale-x-101"
         />
         <Safari url="sualoja.com.br" imageSrc="/bewear.png" mode="simple" />
       </motion.div>

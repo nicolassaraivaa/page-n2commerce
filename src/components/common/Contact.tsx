@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
-import { BorderBeam } from "../ui/border-beam";
+import dynamic from "next/dynamic";
+
+const BorderBeam = dynamic(
+  () => import("../ui/border-beam").then((mod) => mod.BorderBeam),
+  { ssr: false }
+);
 
 export default function Contact() {
   const [formData, setFormData] = useState({

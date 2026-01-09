@@ -1,11 +1,22 @@
 "use client";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { Highlighter } from "../ui/highlighter";
-import {
-  ScrollVelocityContainer,
-  ScrollVelocityRow,
-} from "../ui/scroll-based-velocity";
+import dynamic from "next/dynamic";
+
+const ScrollVelocityContainer = dynamic(
+  () =>
+    import("../ui/scroll-based-velocity").then(
+      (mod) => mod.ScrollVelocityContainer
+    ),
+  { ssr: false }
+);
+const ScrollVelocityRow = dynamic(
+  () =>
+    import("../ui/scroll-based-velocity").then((mod) => mod.ScrollVelocityRow),
+  { ssr: false }
+);
 
 const testimonials = [
   {
@@ -107,9 +118,11 @@ export default function Testimonials() {
                     <Quote className="absolute top-6 right-6 w-10 h-10 text-primary-200" />
 
                     <div className="flex items-center gap-4 mb-6">
-                      <img
+                      <Image
                         src={testimonial.image}
                         alt={testimonial.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
                       />
                       <div>
@@ -157,9 +170,11 @@ export default function Testimonials() {
                     <Quote className="absolute top-6 right-6 w-10 h-10 text-primary-200" />
 
                     <div className="flex items-center gap-4 mb-6">
-                      <img
+                      <Image
                         src={testimonial.image}
                         alt={testimonial.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
                       />
                       <div>
@@ -190,8 +205,8 @@ export default function Testimonials() {
             </ScrollVelocityRow>
           </ScrollVelocityContainer>
 
-          <div className="from-primary-950 pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r"></div>
-          <div className="from-primary-950 pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l"></div>
+          <div className="from-primary-950 pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r"></div>
+          <div className="from-primary-950 pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l"></div>
         </div>
       </div>
     </section>

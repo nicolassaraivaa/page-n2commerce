@@ -3,10 +3,24 @@ import { motion } from "framer-motion";
 import { Palette, Settings, Rocket, CheckCircle } from "lucide-react";
 import { Highlighter } from "../ui/highlighter";
 import { BentoCard, BentoGrid } from "../ui/bento-grid";
-import { InteractiveGridPattern } from "../ui/interactive-grid-pattern";
 import { cn } from "@/lib/utils";
-import { Globe } from "../ui/globe";
-import { OrbitingCircles } from "../ui/orbiting-circles";
+import dynamic from "next/dynamic";
+
+const OrbitingCircles = dynamic(
+  () => import("../ui/orbiting-circles").then((mod) => mod.OrbitingCircles),
+  { ssr: false }
+);
+const InteractiveGridPattern = dynamic(
+  () =>
+    import("../ui/interactive-grid-pattern").then(
+      (mod) => mod.InteractiveGridPattern
+    ),
+  { ssr: false }
+);
+
+const Globe = dynamic(() => import("../ui/globe").then((mod) => mod.Globe), {
+  ssr: false,
+});
 
 const steps = [
   {
