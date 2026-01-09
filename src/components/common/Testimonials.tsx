@@ -151,58 +151,6 @@ export default function Testimonials() {
                 </motion.div>
               ))}
             </ScrollVelocityRow>
-
-            <ScrollVelocityRow
-              baseVelocity={3}
-              direction={-1}
-              className="mt-6 relative"
-            >
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="mx-4"
-                >
-                  <div className="max-w-lg bg-white/5 rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 h-full border border-white/10 relative">
-                    <Quote className="absolute top-6 right-6 w-10 h-10 text-primary-200" />
-
-                    <div className="flex items-center gap-4 mb-6">
-                      <Image
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
-                      />
-                      <div>
-                        <h4 className="font-bold text-white text-lg tracking-tighter">
-                          {testimonial.name}
-                        </h4>
-                        <p className="text-gray-300 text-sm">
-                          {testimonial.business}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-5 h-5 fill-primary-400 text-primary-400"
-                        />
-                      ))}
-                    </div>
-
-                    <p className="text-gray-300 leading-relaxed italic">
-                      "{testimonial.text}"
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </ScrollVelocityRow>
           </ScrollVelocityContainer>
 
           <div className="from-primary-950 pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r"></div>
