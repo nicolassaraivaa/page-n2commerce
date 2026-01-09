@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://n2commercee.vercel.app"
+  ),
   icons: {
     icon: "/favicon.svg",
   },
@@ -68,7 +71,7 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical:
-      process.env.NEXT_PUBLIC_APP_URL || "https://n2commerce.vercel.app/",
+      process.env.NEXT_PUBLIC_APP_URL || "https://n2commercee.vercel.app/",
   },
   robots: {
     index: true,
