@@ -146,17 +146,18 @@ export default function Header() {
             <nav className="max-w-7xl mx-auto px-6 py-6">
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => (
-                  <button
+                  <a
                     key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`text-left px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
+                    href={`#${item.id}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`text-left px-4 z-50 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
                       activeSection === item.id
                         ? "text-white bg-white/10"
                         : "text-gray-300 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     {item.name}
-                  </button>
+                  </a>
                 ))}
                 <Button
                   onClick={() => scrollToSection("contato")}
