@@ -9,8 +9,20 @@ export async function createTenantAction(prevState: any, formData: FormData) {
   const password = formData.get("password") as string;
   const sessionId = formData.get("sessionId") as string;
 
+  const zipCode = formData.get("zipCode") as string;
+  const street = formData.get("street") as string;
+  const number = formData.get("number") as string;
+  const complement = formData.get("complement") as string;
+  const neighborhood = formData.get("neighborhood") as string;
+  const city = formData.get("city") as string;
+  const state = formData.get("state") as string;
+
   if (!name || !subdomain || !password || !sessionId) {
     return { error: "Todos os campos são obrigatórios." };
+  }
+
+  if (!zipCode || !street || !number || !neighborhood || !city || !state) {
+    return { error: "Todos os campos de endereço são obrigatórios." };
   }
 
   // 1. Retrieve Stripe Session to get customer details & plan
@@ -69,6 +81,15 @@ export async function createTenantAction(prevState: any, formData: FormData) {
         adminPassword: password,
         stripeSubscriptionId: session.subscription as string,
         stripeCustomerId: session.customer as string,
+        address: {
+          zipCode: zipCode.replace(/\D/g, ""),
+          street,
+          number,
+          complement: complement || undefined,
+          neighborhood,
+          city,
+          state: state.toUpperCase(),
+        },
       }),
     });
 
