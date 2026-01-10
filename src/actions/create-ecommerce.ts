@@ -1,14 +1,14 @@
 "use server";
 
 import { stripe } from "@/lib/stripe";
-import { redirect } from "next/navigation";
 
-export async function createTenantAction(prevState: any, formData: FormData) {
+export async function createEcommerceAction(
+  prevState: any,
+  formData: FormData
+) {
   const name = formData.get("name") as string;
   const subdomain = formData.get("subdomain") as string;
-  const password = formData.get("password") as string;
   const sessionId = formData.get("sessionId") as string;
-  const email = formData.get("email") as string;
 
   const zipCode = formData.get("zipCode") as string;
   const street = formData.get("street") as string;
@@ -18,20 +18,14 @@ export async function createTenantAction(prevState: any, formData: FormData) {
   const city = formData.get("city") as string;
   const state = formData.get("state") as string;
 
-  if (!name || !subdomain || !password || !sessionId || !email) {
-    return { error: "Todos os campos são obrigatórios." };
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { error: "Email inválido. Por favor, digite um email válido." };
+  if (!name || !subdomain || !sessionId) {
+    return { error: "Nome da loja e subdomínio são obrigatórios." };
   }
 
   if (!zipCode || !street || !number || !neighborhood || !city || !state) {
     return { error: "Todos os campos de endereço são obrigatórios." };
   }
 
-  // 1. Retrieve Stripe Session to get customer details & plan
   let session;
   try {
     session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -47,12 +41,10 @@ export async function createTenantAction(prevState: any, formData: FormData) {
     return { error: "Erro ao verificar pagamento." };
   }
 
-  // 2. Map Stripe Price ID to Internal Plan Enum
-  // We need to look at the line items or metadata. Simplified logic: check amount/price ID.
   const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
   const priceId = lineItems.data[0]?.price?.id;
 
-  let plan = "iniciante"; // default
+  let plan = "iniciante";
 
   const priceMap: Record<string, string> = {
     [process.env.NEXT_PUBLIC_PRICE_ID_START || ""]: "iniciante",
@@ -74,7 +66,7 @@ export async function createTenantAction(prevState: any, formData: FormData) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    const response = await fetch(`${backendUrl}/api/admin/create-tenant`, {
+    const response = await fetch(`${backendUrl}/api/admin/create-ecommerce`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,9 +76,6 @@ export async function createTenantAction(prevState: any, formData: FormData) {
         name,
         subdomain,
         plan,
-        adminName: session.customer_details?.name || "Admin",
-        adminEmail: email,
-        adminPassword: password,
         stripeSubscriptionId: session.subscription as string,
         stripeCustomerId: session.customer as string,
         address: {
@@ -124,23 +113,22 @@ export async function createTenantAction(prevState: any, formData: FormData) {
           "Este subdomínio já está em uso. Por favor, escolha outro.";
       }
 
-      if (
-        errorMessage.includes("email") ||
-        errorMessage.includes("Email") ||
-        errorMessage.includes("already been registered")
-      ) {
+      if (errorMessage === "Session already used") {
         errorMessage =
-          "Este email já está cadastrado. Por favor, use outro email ou faça login.";
+          "Esta sessão de pagamento já foi utilizada. Cada pagamento pode ser usado apenas uma vez.";
       }
 
       return { error: errorMessage };
     }
+
+    return { success: true, ecommerceId: data.ecommerceId };
   } catch (error: any) {
     console.error("API Call Error:", error);
 
     if (error.name === "AbortError") {
       return {
-        error: "Tempo de conexão esgotado. Verifique sua conexão e tente novamente.",
+        error:
+          "Tempo de conexão esgotado. Verifique sua conexão e tente novamente.",
       };
     }
 
@@ -160,8 +148,4 @@ export async function createTenantAction(prevState: any, formData: FormData) {
       error: "Erro ao conectar com o sistema. Por favor, tente novamente.",
     };
   }
-
-  // If successful, redirect
-  const loginUrl = process.env.BACKEND_LOGIN_URL || "http://localhost:3001/authentication";
-  redirect(loginUrl);
 }

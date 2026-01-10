@@ -380,7 +380,6 @@ export default function HowItWorks() {
                 Icon={step.icon}
                 background={renderBackground(step)}
                 className="lg:-mb-5"
-                href=""
                 cta="Contate-nos"
               />
             </BentoGrid>

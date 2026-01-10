@@ -3,7 +3,42 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 interface SetupPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function checkSessionAlreadyUsed(
+  stripeSubscriptionId: string | null,
+  stripeCustomerId: string | null
+) {
+  if (!stripeSubscriptionId && !stripeCustomerId) {
+    return false;
+  }
+
+  const backendUrl = process.env.BACKEND_API_URL || "http://localhost:3001";
+
+  try {
+    const response = await fetch(`${backendUrl}/api/admin/check-session-used`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.ADMIN_API_SECRET}`,
+      },
+      body: JSON.stringify({
+        stripeSubscriptionId,
+        stripeCustomerId,
+      }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    return data.alreadyUsed === true;
+  } catch (error) {
+    console.error("Error checking session:", error);
+    return false;
+  }
 }
 
 export default async function SetupPage({ searchParams }: SetupPageProps) {
@@ -24,7 +59,6 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
       status: session.status,
     });
 
-    // Accept 'paid' OR 'no_payment_required' (for 100% off coupons or trials)
     if (
       session.payment_status !== "paid" &&
       session.payment_status !== "no_payment_required"
@@ -33,8 +67,20 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
       redirect("/payment-error");
     }
 
+    const stripeSubscriptionId = session.subscription as string | null;
+    const stripeCustomerId = session.customer as string | null;
+
+    const alreadyUsed = await checkSessionAlreadyUsed(
+      stripeSubscriptionId || null,
+      stripeCustomerId || null
+    );
+
+    if (alreadyUsed) {
+      console.log("SetupPage: Session already used. Redirecting.");
+      redirect("/payment-error?error=session_already_used");
+    }
+
     console.log("SetupPage: Payment verified. Rendering form.");
-    // Success! Render the setup form.
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">
         <Suspense fallback={<div>Carregando...</div>}>

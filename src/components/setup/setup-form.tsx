@@ -1,12 +1,15 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useActionState, useState } from "react";
-import { createTenantAction } from "@/actions/onboarding";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { useActionState, useState, useEffect } from "react";
+import { createEcommerceAction } from "@/actions/create-ecommerce";
+import { createUserAndLinkAction } from "@/actions/create-user-and-link";
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { PatternFormat } from "react-number-format";
+import { Input } from "@/components/ui/input";
+import { fetchCepData } from "@/helpers/cep";
 
-function SubmitButton() {
+function CreateEcommerceButton() {
   const { pending } = useFormStatus();
 
   return (
@@ -18,7 +21,28 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Criando sua loja...
+          Criando loja...
+        </>
+      ) : (
+        "Criar Loja"
+      )}
+    </button>
+  );
+}
+
+function CreateUserButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Criando usuário...
         </>
       ) : (
         "Finalizar Configuração"
@@ -34,36 +58,220 @@ export function SetupForm({
   sessionId: string;
   customerEmail?: string;
 }) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [ecommerceId, setEcommerceId] = useState<string | null>(null);
+
   /* @ts-ignore */
-  const [state, formAction] = useActionState(createTenantAction, null);
+  const [createEcommerceState, createEcommerceFormAction] = useActionState(
+    createEcommerceAction,
+    null
+  );
+  /* @ts-ignore */
+  const [createUserState, createUserFormAction] = useActionState(
+    createUserAndLinkAction,
+    null
+  );
+
   const [showPassword, setShowPassword] = useState(false);
+  const [zipCodeValue, setZipCodeValue] = useState("");
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+  const [street, setStreet] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [city, setCity] = useState("");
+  const [stateValue, setStateValue] = useState("");
+
+  useEffect(() => {
+    if (
+      createEcommerceState &&
+      "success" in createEcommerceState &&
+      createEcommerceState.success &&
+      "ecommerceId" in createEcommerceState &&
+      createEcommerceState.ecommerceId
+    ) {
+      setEcommerceId(createEcommerceState.ecommerceId);
+      setStep(2);
+    }
+  }, [createEcommerceState]);
+
+  useEffect(() => {
+    if (
+      createUserState &&
+      "success" in createUserState &&
+      createUserState.success &&
+      "loginUrl" in createUserState &&
+      createUserState.loginUrl
+    ) {
+      window.location.href = createUserState.loginUrl;
+    }
+  }, [createUserState]);
+
+  const handleCepChange = async (value: string) => {
+    const cleanZipCode = value.replace(/\D/g, "");
+    setZipCodeValue(value);
+
+    if (cleanZipCode.length === 8) {
+      setIsLoadingCep(true);
+      const cepData = await fetchCepData(cleanZipCode);
+
+      if (cepData) {
+        setStreet(cepData.logradouro || "");
+        setNeighborhood(cepData.bairro || "");
+        setCity(cepData.localidade || "");
+        setStateValue(cepData.uf || "");
+      } else {
+        setStreet("");
+        setNeighborhood("");
+        setCity("");
+        setStateValue("");
+      }
+
+      setIsLoadingCep(false);
+    }
+  };
+
+  if (step === 2 && ecommerceId) {
+    return (
+      <div className="space-y-4 text-left">
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Etapa 2 de 2
+            </span>
+            <span className="text-xs text-gray-500">Criar Conta</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-green-600 h-2 rounded-full"
+              style={{ width: "100%" }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 text-green-700">
+            <CheckCircle2 className="h-5 w-5" />
+            <span className="font-medium">Loja criada com sucesso!</span>
+          </div>
+          <p className="text-sm text-green-600 mt-1">
+            Agora vamos criar sua conta de administrador.
+          </p>
+        </div>
+
+        <form action={createUserFormAction} className="space-y-4">
+          <input type="hidden" name="ecommerceId" value={ecommerceId} />
+
+          <div>
+            <label
+              htmlFor="adminName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Nome Completo
+            </label>
+            <input
+              type="text"
+              id="adminName"
+              name="adminName"
+              required
+              autoComplete="name"
+              placeholder="Seu nome completo"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email do Administrador
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              defaultValue={customerEmail}
+              required
+              autoComplete="email"
+              placeholder="seu@email.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Este será o email de acesso ao painel administrativo.
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Senha
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                required
+                autoComplete="new-password"
+                minLength={6}
+                placeholder="******"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Mínimo de 6 caracteres.
+            </p>
+          </div>
+
+          {createUserState &&
+            "error" in createUserState &&
+            createUserState.error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
+                ⚠️ {createUserState.error}
+              </div>
+            )}
+
+          <div className="pt-4">
+            <CreateUserButton />
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <form
-      action={formAction}
+      action={createEcommerceFormAction}
       className="space-y-4 text-left"
       autoComplete="off"
     >
       <input type="hidden" name="sessionId" value={sessionId} />
 
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Email do Administrador
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          defaultValue={customerEmail}
-          disabled
-          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Este email foi vinculado ao seu pagamento.
-        </p>
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">
+            Etapa 1 de 2
+          </span>
+          <span className="text-xs text-gray-500">Configuração da Loja</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full"
+            style={{ width: "50%" }}
+          ></div>
+        </div>
       </div>
 
       <div>
@@ -111,41 +319,6 @@ export function SetupForm({
         </p>
       </div>
 
-      <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Senha de Administrador
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            name="password"
-            required
-            autoComplete="new-password"
-            minLength={6}
-            placeholder="******"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
-          >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-          </button>
-        </div>
-        <p className="mt-1 text-xs text-gray-500">
-          Esta senha será usada para acessar o painel administrativo.
-        </p>
-      </div>
-
       <div className="pt-4 border-t border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Endereço da Loja
@@ -159,15 +332,27 @@ export function SetupForm({
             >
               CEP
             </label>
-            <PatternFormat
-              format="#####-###"
-              allowEmptyFormatting
-              mask="_"
-              id="zipCode"
+            <div className="relative">
+              <PatternFormat
+                format="#####-###"
+                allowEmptyFormatting
+                mask="_"
+                value={zipCodeValue}
+                onValueChange={(values) => handleCepChange(values.value)}
+                customInput={Input}
+                placeholder="00000-000"
+                disabled={isLoadingCep}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              {isLoadingCep && (
+                <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+              )}
+            </div>
+            <input
+              type="hidden"
               name="zipCode"
+              value={zipCodeValue.replace(/\D/g, "")}
               required
-              placeholder="00000-000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -183,6 +368,8 @@ export function SetupForm({
                 type="text"
                 id="street"
                 name="street"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
                 required
                 autoComplete="street-address"
                 placeholder="Nome da rua"
@@ -236,6 +423,8 @@ export function SetupForm({
               type="text"
               id="neighborhood"
               name="neighborhood"
+              value={neighborhood}
+              onChange={(e) => setNeighborhood(e.target.value)}
               required
               placeholder="Nome do bairro"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -254,6 +443,8 @@ export function SetupForm({
                 type="text"
                 id="city"
                 name="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 required
                 autoComplete="address-level2"
                 placeholder="Nome da cidade"
@@ -272,6 +463,8 @@ export function SetupForm({
                 type="text"
                 id="state"
                 name="state"
+                value={stateValue}
+                onChange={(e) => setStateValue(e.target.value.toUpperCase())}
                 required
                 autoComplete="address-level1"
                 placeholder="UF"
@@ -284,14 +477,16 @@ export function SetupForm({
         </div>
       </div>
 
-      {state?.error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
-          ⚠️ {state.error}
-        </div>
-      )}
+      {createEcommerceState &&
+        "error" in createEcommerceState &&
+        createEcommerceState.error && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
+            ⚠️ {createEcommerceState.error}
+          </div>
+        )}
 
       <div className="pt-4">
-        <SubmitButton />
+        <CreateEcommerceButton />
       </div>
     </form>
   );
