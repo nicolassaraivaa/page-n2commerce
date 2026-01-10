@@ -8,6 +8,7 @@ import { Mail, Phone, MapPin, Send } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useForm, Controller } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
+import { toast } from "sonner";
 
 const BorderBeam = dynamic(
   () => import("../ui/border-beam").then((mod) => mod.BorderBeam),
@@ -38,11 +39,24 @@ export default function Contact() {
   });
 
   const onSubmit = async (data: ContactFormData) => {
-    console.log("Dados enviados:", data);
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    alert("Mensagem enviada com sucesso!");
-    reset();
+      if (response.ok) {
+        toast.success("Mensagem enviada com sucesso!");
+        reset();
+      } else {
+        toast.error("Erro ao enviar mensagem. Tente novamente.");
+      }
+    } catch (error) {
+      toast.error("Erro ao enviar mensagem. Tente novamente.");
+    }
   };
 
   return (
