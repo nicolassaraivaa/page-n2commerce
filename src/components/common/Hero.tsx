@@ -19,7 +19,7 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-linear-to-br from-[#0b0d18] via-[#0b0518] to-[#0e101f]">
-      <Particles className="absolute inset-0 z-0" />
+      <Particles className="absolute inset-0 z-0 max-sm:hidden" />
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
