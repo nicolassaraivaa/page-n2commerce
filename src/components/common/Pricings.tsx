@@ -35,7 +35,9 @@ export default function Pricing() {
         "1 administrador",
         "Subdomínio gratuito",
         "Tema Padrão",
-        "Suporte por email (48h)",
+        "Suporte por WhatsApp",
+        "100 usos da IA",
+        "Chatbot limitado (100 usos)",
       ],
       popular: false,
     },
@@ -57,6 +59,8 @@ export default function Pricing() {
         "Cupons e Promoções",
         "Recuperação de Carrinho",
         "Sem marca d'água",
+        "1.000 usos da IA",
+        "Chatbot limitado (1.000 usos)",
       ],
       popular: true,
     },
@@ -70,14 +74,16 @@ export default function Pricing() {
           : process.env.NEXT_PUBLIC_PRICE_ID_ENTERPRISE_ANNUAL,
       description: "Alta escala e desempenho",
       features: [
+        "Tudo do Profissional",
         "Produtos Ilimitados",
         "Pedidos Ilimitados",
         "Admins Ilimitados",
-        "Múltiplos domínios",
         "Acesso HTML/CSS",
         "Gerente dedicado",
         "API e Integrações",
         "Infraestrutura prioritária",
+        "10.000 usos da IA",
+        "Chatbot ilimitado",
       ],
       popular: false,
     },
@@ -93,7 +99,7 @@ export default function Pricing() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-6xl font-medium text-gray-900 mb-6 tracking-tighter text-white">
+          <h2 className="text-4xl md:text-6xl font-medium mb-6 tracking-tighter text-white">
             Planos Transparentes
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
