@@ -1,8 +1,8 @@
 import dynamic from "next/dynamic";
 import Header from "@/components/common/Header";
 import Hero from "@/components/common/Hero";
-import { ScrollProgress } from "@/components/ui/scroll-progress";
 
+const ScrollProgress = dynamic(() => import("@/components/ui/scroll-progress").then((mod) => ({ default: mod.ScrollProgress })));
 const Contact = dynamic(() => import("@/components/common/Contact"));
 const Features = dynamic(() => import("@/components/common/Features"));
 const Footer = dynamic(() => import("@/components/common/Footer"));

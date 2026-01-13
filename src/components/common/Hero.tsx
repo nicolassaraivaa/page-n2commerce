@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
 
 const Particles = dynamic(
   () => import("../ui/particles").then((mod) => mod.Particles),
@@ -13,13 +14,33 @@ import { ShineBorder } from "../ui/shine-border";
 import { InteractiveHoverButton } from "../ui/interactive-hover-button";
 
 export default function Hero() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [shouldLoadParticles, setShouldLoadParticles] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setShouldLoadParticles(true);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const scrollToContact = () => {
     document.getElementById("contato")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const animationDelay = isMobile ? 0 : 0.2;
+  const animationDuration = isMobile ? 0.4 : 0.8;
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-linear-to-br from-[#0b0d18] via-[#0b0518] to-[#0e101f]">
-      <Particles className="absolute inset-0 z-0" />
+      {shouldLoadParticles && <Particles className="absolute inset-0 z-0 hidden md:block" />}
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -52,7 +73,7 @@ export default function Hero() {
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: animationDuration, delay: animationDelay }}
           className="text-5xl md:text-7xl font-medium text-primary-50 mb-6 md:leading-18 leading-14 tracking-tighter text-balance"
         >
           Sua loja virtual
@@ -68,7 +89,7 @@ export default function Hero() {
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: animationDuration, delay: animationDelay + 0.1 }}
           className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
         >
           Plataforma SaaS que simplifica o acesso ao comércio digital.
@@ -81,11 +102,11 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          transition={{ duration: animationDuration, delay: animationDelay + 0.2 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-30"
         >
           <InteractiveHoverButton
-            className="text-white"
+            className="text-white relative z-30"
             onClick={scrollToContact}
           >
             Comece agora
