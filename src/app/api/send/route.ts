@@ -1,10 +1,18 @@
 import { EmailTemplate } from "@/components/email-template";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
+    const apiKey = process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
+      return Response.json(
+        { error: "RESEND_API_KEY não configurada" },
+        { status: 500 }
+      );
+    }
+
+    const resend = new Resend(apiKey);
     const { name, email, phone, message } = await request.json();
 
     const { data, error } = await resend.emails.send({
@@ -20,7 +28,12 @@ export async function POST(request: Request) {
 
     return Response.json(data);
   } catch (error) {
-    console.log(error);
-    return Response.json({ error }, { status: 500 });
+    console.error("Error sending email:", error);
+    return Response.json(
+      {
+        error: error instanceof Error ? error.message : "Erro ao enviar email",
+      },
+      { status: 500 }
+    );
   }
 }
