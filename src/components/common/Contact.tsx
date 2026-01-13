@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,31 +6,57 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useForm, Controller } from "react-hook-form";
+import { PatternFormat } from "react-number-format";
+import { toast } from "sonner";
 
 const BorderBeam = dynamic(
   () => import("../ui/border-beam").then((mod) => mod.BorderBeam),
   { ssr: false }
 );
 
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
-    telefone: "",
-    mensagem: "",
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactFormData>({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    console.log("Dados enviados:", formData);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert("Mensagem enviada com sucesso!");
-    }, 1500);
+      if (response.ok) {
+        toast.success("Mensagem enviada com sucesso!");
+        reset();
+      } else {
+        toast.error("Erro ao enviar mensagem. Tente novamente.");
+      }
+    } catch (error) {
+      toast.error("Erro ao enviar mensagem. Tente novamente.");
+    }
   };
 
   return (
@@ -118,7 +143,7 @@ export default function Contact() {
             className="relative overflow-hidden w-full"
           >
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
               className="relative w-full overflow-hidden bg-transparent rounded-3xl p-6 md:p-8 shadow-2xl border border-white/10"
             >
               <div className="space-y-6">
@@ -131,14 +156,25 @@ export default function Contact() {
                   </Label>
                   <Input
                     id="nome"
-                    value={formData.nome}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nome: e.target.value })
-                    }
+                    {...register("name", {
+                      required: "Nome é obrigatório",
+                      minLength: {
+                        value: 1,
+                        message: "Nome deve ter pelo menos 1 caractere",
+                      },
+                    })}
                     placeholder="Seu nome"
-                    required
-                    className="h-12 rounded-xl border-white/15 text-white focus:border-0 focus-visible:ring-1"
+                    className={`${
+                      errors.name
+                        ? "border-red-400 focus-visible:ring-1 focus-visible:ring-red-400"
+                        : "border-white/15 focus-visible:ring-1"
+                    } h-12 rounded-xl text-white focus:border-0`}
                   />
+                  {errors.name && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {errors.name.message}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -151,14 +187,25 @@ export default function Contact() {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    {...register("email", {
+                      required: "Email é obrigatório",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Email inválido",
+                      },
+                    })}
                     placeholder="seu@email.com"
-                    required
-                    className="h-12 rounded-xl border-white/15 text-white focus:border-0 focus-visible:ring-1"
+                    className={`${
+                      errors.email
+                        ? "border-red-400 focus-visible:ring-1 focus-visible:ring-red-400"
+                        : "border-white/15 focus-visible:ring-1"
+                    } h-12 rounded-xl text-white focus:border-0`}
                   />
+                  {errors.email && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -168,16 +215,39 @@ export default function Contact() {
                   >
                     Telefone
                   </Label>
-                  <Input
-                    id="telefone"
-                    type="tel"
-                    value={formData.telefone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, telefone: e.target.value })
-                    }
-                    placeholder="(11) 99999-9999"
-                    className="h-12 rounded-xl border-white/15 text-white focus:border-0 focus-visible:ring-1"
+                  <Controller
+                    name="phone"
+                    control={control}
+                    rules={{
+                      required: "Telefone é obrigatório",
+                      minLength: { value: 14, message: "Telefone incompleto" },
+                    }}
+                    render={({ field: { onChange, value, ref, onBlur } }) => (
+                      <PatternFormat
+                        format="(##) #####-####"
+                        mask="_"
+                        customInput={Input}
+                        id="telefone"
+                        placeholder="(11) 99999-9999"
+                        className={`${
+                          errors.phone
+                            ? "border-red-400 focus-visible:ring-1 focus-visible:ring-red-400"
+                            : "border-white/15 focus-visible:ring-1"
+                        } h-12 rounded-xl text-white focus:border-0`}
+                        value={value}
+                        onValueChange={(values) => {
+                          onChange(values.formattedValue);
+                        }}
+                        getInputRef={ref}
+                        onBlur={onBlur}
+                      />
+                    )}
                   />
+                  {errors.phone && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {errors.phone.message}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -189,14 +259,25 @@ export default function Contact() {
                   </Label>
                   <Textarea
                     id="mensagem"
-                    value={formData.mensagem}
-                    onChange={(e) =>
-                      setFormData({ ...formData, mensagem: e.target.value })
-                    }
+                    {...register("message", {
+                      required: "Mensagem é obrigatória",
+                      minLength: {
+                        value: 1,
+                        message: "Mensagem deve ter pelo menos 1 caractere",
+                      },
+                    })}
                     placeholder="Conte-nos sobre seu projeto..."
-                    required
-                    className="min-h-32 rounded-xl border-white/15 text-white focus:border-0 focus-visible:ring-1"
+                    className={`${
+                      errors.message
+                        ? "border-red-400 focus-visible:ring-1 focus-visible:ring-red-400"
+                        : "border-white/15 focus-visible:ring-1"
+                    } min-h-32 rounded-xl text-white focus:border-0`}
                   />
+                  {errors.message && (
+                    <span className="text-red-400 text-sm mt-1 block">
+                      {errors.message.message}
+                    </span>
+                  )}
                 </div>
 
                 <Button
