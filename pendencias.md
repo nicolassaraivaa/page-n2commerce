@@ -1,5 +1,9 @@
 - Moro
 
+- Footer (logo da N2)
+- Retirar o hover do botão de adicionar ao carrinho no item do produto
+- Melhorar as qualificações do PageSpeed Insights
+
 SUA PÁGINA DE CHECKOUT │
 │ │
 │ 📦 Informações da Loja │
