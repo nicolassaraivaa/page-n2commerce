@@ -60,6 +60,7 @@ export function SetupForm({
 }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [ecommerceId, setEcommerceId] = useState<string | null>(null);
+  const [subdomain, setSubdomain] = useState<string | null>(null);
 
   /* @ts-ignore */
   const [createEcommerceState, createEcommerceFormAction] = useActionState(
@@ -89,6 +90,9 @@ export function SetupForm({
       createEcommerceState.ecommerceId
     ) {
       setEcommerceId(createEcommerceState.ecommerceId);
+      if ("subdomain" in createEcommerceState && createEcommerceState.subdomain) {
+        setSubdomain(createEcommerceState.subdomain);
+      }
       setStep(2);
     }
   }, [createEcommerceState]);
@@ -97,11 +101,16 @@ export function SetupForm({
     if (
       createUserState &&
       "success" in createUserState &&
-      createUserState.success &&
-      "loginUrl" in createUserState &&
-      createUserState.loginUrl
+      createUserState.success
     ) {
-      window.location.href = createUserState.loginUrl;
+      const sub = "subdomain" in createUserState && createUserState.subdomain
+        ? createUserState.subdomain
+        : null;
+      if (sub) {
+        window.location.href = `/provisionando?cliente=${encodeURIComponent(sub)}`;
+      } else if ("loginUrl" in createUserState && createUserState.loginUrl) {
+        window.location.href = createUserState.loginUrl;
+      }
     }
   }, [createUserState]);
 
@@ -159,6 +168,9 @@ export function SetupForm({
 
         <form action={createUserFormAction} className="space-y-4">
           <input type="hidden" name="ecommerceId" value={ecommerceId} />
+          {subdomain && (
+            <input type="hidden" name="subdomain" value={subdomain} />
+          )}
 
           <div>
             <label

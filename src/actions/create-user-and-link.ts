@@ -1,5 +1,7 @@
 "use server";
 
+import { upsertProvisioning } from "@/lib/provisioning-store";
+
 export async function createUserAndLinkAction(
   prevState: any,
   formData: FormData,
@@ -8,6 +10,7 @@ export async function createUserAndLinkAction(
   const password = formData.get("password") as string;
   const adminName = formData.get("adminName") as string;
   const ecommerceId = formData.get("ecommerceId") as string;
+  const subdomain = (formData.get("subdomain") as string)?.trim() || "";
 
   if (!email || !password || !adminName || !ecommerceId) {
     return { error: "Todos os campos são obrigatórios." };
@@ -77,8 +80,12 @@ export async function createUserAndLinkAction(
 
     const loginUrl =
       process.env.BACKEND_LOGIN_URL || "http://localhost:3001/authentication";
-    
-    return { success: true, loginUrl };
+
+    if (subdomain) {
+      await upsertProvisioning(subdomain.toLowerCase(), { email });
+    }
+
+    return { success: true, loginUrl, subdomain: subdomain || undefined };
   } catch (error: any) {
     console.error("API Call Error:", error);
 

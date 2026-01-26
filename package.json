@@ -6,7 +6,9 @@
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:coolify": "node scripts/test-coolify.js",
+    "test:add-subdomain": "node scripts/test-add-subdomain.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",

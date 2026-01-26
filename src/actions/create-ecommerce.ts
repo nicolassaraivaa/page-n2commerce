@@ -1,6 +1,8 @@
 "use server";
 
 import { stripe } from "@/lib/stripe";
+import { upsertProvisioning } from "@/lib/provisioning-store";
+import { provisionarClienteAsync } from "@/actions/provisionar-cliente";
 
 export async function createEcommerceAction(
   prevState: any,
@@ -121,7 +123,16 @@ export async function createEcommerceAction(
       return { error: errorMessage };
     }
 
-    return { success: true, ecommerceId: data.ecommerceId };
+    const subdomainNorm = subdomain.toLowerCase().trim();
+    await upsertProvisioning(subdomainNorm, {
+      ecommerceId: data.ecommerceId,
+      status: "provisionando",
+    });
+    provisionarClienteAsync(subdomainNorm).catch((err) => {
+      console.error("[create-ecommerce] provisionarClienteAsync error:", err);
+    });
+
+    return { success: true, ecommerceId: data.ecommerceId, subdomain: subdomainNorm };
   } catch (error: any) {
     console.error("API Call Error:", error);
 
