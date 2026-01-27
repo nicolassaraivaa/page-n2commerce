@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const BorderBeam = dynamic(
   () => import("../ui/border-beam").then((mod) => mod.BorderBeam),
-  { ssr: false }
+  { ssr: false },
 );
 
 interface ContactFormData {

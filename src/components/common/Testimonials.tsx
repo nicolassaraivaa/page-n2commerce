@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { Highlighter } from "../ui/highlighter";
 import dynamic from "next/dynamic";
@@ -8,14 +8,14 @@ import dynamic from "next/dynamic";
 const ScrollVelocityContainer = dynamic(
   () =>
     import("../ui/scroll-based-velocity").then(
-      (mod) => mod.ScrollVelocityContainer
+      (mod) => mod.ScrollVelocityContainer,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 const ScrollVelocityRow = dynamic(
   () =>
     import("../ui/scroll-based-velocity").then((mod) => mod.ScrollVelocityRow),
-  { ssr: false }
+  { ssr: false },
 );
 
 const testimonials = [
@@ -126,9 +126,9 @@ export default function Testimonials() {
                         className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
                       />
                       <div>
-                        <h4 className="font-bold text-white text-lg tracking-tighter">
+                        <h3 className="font-bold text-white text-lg tracking-tighter">
                           {testimonial.name}
-                        </h4>
+                        </h3>
                         <p className="text-gray-300 text-sm">
                           {testimonial.business}
                         </p>

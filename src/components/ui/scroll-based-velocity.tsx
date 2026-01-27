@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  motion,
+  m as motion,
   useAnimationFrame,
   useMotionValue,
   useScroll,
@@ -25,7 +25,7 @@ export const wrap = (min: number, max: number, v: number) => {
 };
 
 const ScrollVelocityContext = React.createContext<MotionValue<number> | null>(
-  null
+  null,
 );
 
 export function ScrollVelocityContainer({

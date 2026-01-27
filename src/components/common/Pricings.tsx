@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Sparkles } from "lucide-react";
 import { AnimatedShinyText } from "../ui/animated-shiny-text";
@@ -11,7 +11,7 @@ import { createCheckoutSession } from "@/actions/checkout";
 
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly"
+    "monthly",
   );
 
   const handleSubscribe = async (priceId?: string) => {
@@ -112,7 +112,7 @@ export default function Pricing() {
             <span
               className={cn(
                 "text-sm font-medium transition-colors",
-                billingCycle === "monthly" ? "text-white" : "text-gray-400"
+                billingCycle === "monthly" ? "text-white" : "text-gray-400",
               )}
             >
               Mensal
@@ -120,22 +120,23 @@ export default function Pricing() {
             <button
               onClick={() =>
                 setBillingCycle(
-                  billingCycle === "monthly" ? "yearly" : "monthly"
+                  billingCycle === "monthly" ? "yearly" : "monthly",
                 )
               }
               className="relative w-14 h-7 bg-primary-900 rounded-full border border-primary-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-primary-950"
+              aria-label="Toggle Billing Cycle"
             >
               <div
                 className={cn(
                   "absolute top-1 left-1 w-4 h-4 bg-primary-500 rounded-full transition-transform",
-                  billingCycle === "yearly" && "translate-x-7"
+                  billingCycle === "yearly" && "translate-x-7",
                 )}
               />
             </button>
             <span
               className={cn(
                 "text-sm font-medium transition-colors",
-                billingCycle === "yearly" ? "text-white" : "text-gray-400"
+                billingCycle === "yearly" ? "text-white" : "text-gray-400",
               )}
             >
               Anual{" "}

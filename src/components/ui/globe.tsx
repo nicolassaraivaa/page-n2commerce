@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import createGlobe, { type COBEOptions } from "cobe";
-import { useMotionValue, useSpring } from "motion/react";
+import { useMotionValue, useSpring } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -11,12 +11,12 @@ const GLOBE_CONFIG: COBEOptions = {
   width: 800,
   height: 800,
   onRender: () => {},
-  devicePixelRatio: 2,
+  devicePixelRatio: 1,
   phi: 0,
   theta: 0,
   dark: 1,
   diffuse: 1.2,
-  mapSamples: 16000,
+  mapSamples: 10000,
   mapBrightness: 6,
   baseColor: [0.1, 0.1, 0.1],
   markerColor: [255, 255, 255],
@@ -103,13 +103,13 @@ export function Globe({
   return (
     <div
       className={cn(
-        "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]",
-        className
+        "absolute inset-0 mx-auto aspect-square w-full max-w-[600px]",
+        className,
       )}
     >
       <canvas
         className={cn(
-          "size-full opacity-0 transition-opacity duration-500 [contain:layout_paint_size]"
+          "size-full opacity-0 transition-opacity duration-500 contain-[layout_paint_size]",
         )}
         ref={canvasRef}
         onPointerDown={(e) => {

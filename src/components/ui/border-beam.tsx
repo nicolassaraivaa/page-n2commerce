@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import type { MotionStyle, Transition } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -77,7 +77,7 @@ export const BorderBeam = ({
         className={cn(
           "absolute aspect-square",
           "bg-gradient-to-l from-[var(--color-from)] via-[var(--color-to)] to-transparent",
-          className
+          className,
         )}
         style={
           {

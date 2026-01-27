@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Palette, Settings, Rocket, CheckCircle } from "lucide-react";
 import { Highlighter } from "../ui/highlighter";
 import { BentoCard, BentoGrid } from "../ui/bento-grid";
@@ -8,14 +8,14 @@ import dynamic from "next/dynamic";
 
 const OrbitingCircles = dynamic(
   () => import("../ui/orbiting-circles").then((mod) => mod.OrbitingCircles),
-  { ssr: false }
+  { ssr: false },
 );
 const InteractiveGridPattern = dynamic(
   () =>
     import("../ui/interactive-grid-pattern").then(
-      (mod) => mod.InteractiveGridPattern
+      (mod) => mod.InteractiveGridPattern,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 const Globe = dynamic(() => import("../ui/globe").then((mod) => mod.Globe), {
@@ -292,6 +292,7 @@ const renderBackground = (step: (typeof steps)[0]) => {
         <div className="w-full h-[140px] md:h-full -z-10">
           <video
             src="/video-pricing.mp4"
+            poster="/plan.png"
             className="w-full h-full object-cover object-top mask-b-from-20% mask-b-to-100%"
             autoPlay
             loop
@@ -309,7 +310,7 @@ const renderBackground = (step: (typeof steps)[0]) => {
             squares={[30, 30]}
             className={cn(
               "mask-b-from-20% mask-b-to-100%",
-              "inset-x-0 inset-y-[-45%] h-[105%] skew-y-12 opacity-50"
+              "inset-x-0 inset-y-[-45%] h-[105%] skew-y-12 opacity-50",
             )}
           />
         </div>

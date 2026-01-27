@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 
 const Particles = dynamic(
   () => import("../ui/particles").then((mod) => mod.Particles),
-  { ssr: false }
+  { ssr: false },
 );
 import { AuroraText } from "../ui/aurora-text";
 import { Safari } from "../ui/safari";
@@ -25,7 +25,7 @@ export default function Hero() {
         setShouldLoadParticles(true);
       }
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -40,7 +40,12 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-linear-to-br from-[#0b0d18] via-[#0b0518] to-[#0e101f]">
-      {shouldLoadParticles && <Particles className="absolute inset-0 z-0 hidden md:block" />}
+      {shouldLoadParticles && (
+        <Particles
+          className="absolute inset-0 z-0 hidden md:block"
+          quantity={50}
+        />
+      )}
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -53,7 +58,7 @@ export default function Hero() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-1/4 -left-20 w-96 h-96 bg-primary-400/10 rounded-full blur-3xl"
+          className="absolute top-1/4 -left-20 w-96 h-96 bg-primary-400/10 rounded-full blur-3xl will-change-transform"
         />
         <motion.div
           animate={{
@@ -65,17 +70,12 @@ export default function Hero() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary-200/5 rounded-full blur-3xl"
+          className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary-200/5 rounded-full blur-3xl will-change-transform"
         />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto md:mb-50 px-6 py-20 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: animationDuration, delay: animationDelay }}
-          className="text-5xl md:text-7xl font-medium text-primary-50 mb-6 md:leading-18 leading-14 tracking-tighter text-balance"
-        >
+        <h1 className="text-5xl md:text-7xl font-medium text-primary-50 mb-6 md:leading-18 leading-14 tracking-tighter text-balance">
           Sua loja virtual
           <br />
           <AuroraText
@@ -84,25 +84,23 @@ export default function Hero() {
           >
             pronta em dias
           </AuroraText>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: animationDuration, delay: animationDelay + 0.1 }}
-          className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
-        >
+        <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
           Plataforma SaaS que simplifica o acesso ao comércio digital.
           <br />
           <span className="text-white font-medium">
             Layout personalizado, estrutura completa, zero complicação.
           </span>
-        </motion.p>
+        </p>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: animationDuration, delay: animationDelay + 0.2 }}
+          transition={{
+            duration: animationDuration,
+            delay: animationDelay + 0.2,
+          }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-30"
         >
           <InteractiveHoverButton

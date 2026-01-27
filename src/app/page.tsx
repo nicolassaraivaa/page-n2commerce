@@ -2,7 +2,11 @@ import dynamic from "next/dynamic";
 import Header from "@/components/common/Header";
 import Hero from "@/components/common/Hero";
 
-const ScrollProgress = dynamic(() => import("@/components/ui/scroll-progress").then((mod) => ({ default: mod.ScrollProgress })));
+const ScrollProgress = dynamic(() =>
+  import("@/components/ui/scroll-progress").then((mod) => ({
+    default: mod.ScrollProgress,
+  })),
+);
 const Contact = dynamic(() => import("@/components/common/Contact"));
 const Features = dynamic(() => import("@/components/common/Features"));
 const Footer = dynamic(() => import("@/components/common/Footer"));
@@ -16,12 +20,24 @@ export default function Home() {
       <ScrollProgress />
       <Header />
       <Hero />
-      <HowItWorks />
-      <Features />
-      <Pricing />
-      <Testimonials />
-      <Contact />
-      <Footer />
+      <div className="content-visibility-auto">
+        <HowItWorks />
+      </div>
+      <div className="content-visibility-auto">
+        <Features />
+      </div>
+      <div className="content-visibility-auto">
+        <Pricing />
+      </div>
+      <div className="content-visibility-auto">
+        <Testimonials />
+      </div>
+      <div className="content-visibility-auto">
+        <Contact />
+      </div>
+      <div className="content-visibility-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
