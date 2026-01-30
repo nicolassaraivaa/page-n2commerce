@@ -3,7 +3,7 @@
 - Footer (logo da N2) ✅
 - Retirar o hover do botão de adicionar ao carrinho no item do produto ✅
 - Melhorar as qualificações do e-commerce no PageSpeed Insights ✅
-- Melhorar as qualificações da landing page no PageSpeed Insights
+- Melhorar as qualificações da landing page no PageSpeed Insights ✅
 
 SUA PÁGINA DE CHECKOUT │
 │ │
