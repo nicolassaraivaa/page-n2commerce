@@ -11,8 +11,7 @@ import { Resend } from "resend";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const COOLIFY_BASE_DOMAIN = process.env.COOLIFY_BASE_DOMAIN || "";
 const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ||
-  "N2Commerce <notificacoes@n2commerce.com.br>";
+  process.env.RESEND_FROM_EMAIL || "N2Commerce <notificacoes@saraivaa.shop>";
 
 export async function provisionarClienteAsync(
   subdominio: string,
