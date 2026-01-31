@@ -10,15 +10,13 @@ import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const COOLIFY_BASE_DOMAIN = process.env.COOLIFY_BASE_DOMAIN || "";
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "N2Commerce <notificacoes@n2commerce.com.br>";
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ||
+  "N2Commerce <notificacoes@n2commerce.com.br>";
 
-/**
- * Chamar em background (não await) após criar o cliente/tenant.
- * Adiciona subdomínio no Coolify, atualiza store e envia email em caso de sucesso.
- */
 export async function provisionarClienteAsync(
   subdominio: string,
-  email?: string | null
+  email?: string | null,
 ): Promise<void> {
   const key = subdominio.toLowerCase().trim();
   console.log("[Provisionar] Iniciando provisionamento em background:", key);
@@ -62,7 +60,7 @@ export async function provisionarClienteAsync(
 async function enviarEmailAmbientePronto(
   to: string,
   url: string,
-  subdominio: string
+  subdominio: string,
 ): Promise<void> {
   if (!RESEND_API_KEY) return;
   try {
@@ -98,12 +96,9 @@ export async function getStatusProvisionamento(clienteId: string): Promise<{
     return { status: null, mensagem: "Cliente não encontrado." };
   }
   const mensagens: Record<ProvisioningStatus, string> = {
-    provisionando:
-      "Configurando seu ambiente... Isso leva de 2-5 minutos.",
-    ativo:
-      "Seu ambiente está pronto! Você já pode acessar.",
-    erro_provisionamento:
-      "Houve um problema. Nossa equipe foi notificada.",
+    provisionando: "Configurando seu ambiente... Isso leva de 2-5 minutos.",
+    ativo: "Seu ambiente está pronto! Você já pode acessar.",
+    erro_provisionamento: "Houve um problema. Nossa equipe foi notificada.",
   };
   return {
     status: record.status,

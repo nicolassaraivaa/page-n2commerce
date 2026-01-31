@@ -8,7 +8,7 @@ interface SetupPageProps {
 
 async function checkSessionAlreadyUsed(
   stripeSubscriptionId: string | null,
-  stripeCustomerId: string | null
+  stripeCustomerId: string | null,
 ) {
   if (!stripeSubscriptionId && !stripeCustomerId) {
     return false;
@@ -42,101 +42,113 @@ async function checkSessionAlreadyUsed(
 }
 
 export default async function SetupPage({ searchParams }: SetupPageProps) {
-  const { session_id } = await searchParams;
+  const { session_id, plan } = await searchParams;
   const sessionId = Array.isArray(session_id) ? session_id[0] : session_id;
+  const priceId = Array.isArray(plan) ? plan[0] : plan;
 
-  if (!sessionId) {
-    redirect("/payment-error");
-  }
+  // Case 1: Payment Success (Session ID present)
+  // Case 1: Payment Success (Session ID present)
+  if (sessionId) {
+    console.log("SetupPage: Checking session", sessionId);
 
-  console.log("SetupPage: Checking session", sessionId);
-
-  try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    console.log("SetupPage: Session retrieved", {
-      id: session.id,
-      payment_status: session.payment_status,
-      status: session.status,
-    });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (error) {
+      console.error("Error retrieving Stripe session:", error);
+      redirect("/payment-error");
+    }
 
     if (
       session.payment_status !== "paid" &&
       session.payment_status !== "no_payment_required"
     ) {
-      console.log("SetupPage: Payment not paid. Redirecting.");
       redirect("/payment-error");
     }
 
-    const stripeSubscriptionId = session.subscription as string | null;
-    const stripeCustomerId = session.customer as string | null;
-
     const alreadyUsed = await checkSessionAlreadyUsed(
-      stripeSubscriptionId || null,
-      stripeCustomerId || null
+      (session.subscription as string) || null,
+      (session.customer as string) || null,
     );
 
     if (alreadyUsed) {
-      console.log("SetupPage: Session already used. Redirecting.");
       redirect("/payment-error?error=session_already_used");
     }
 
-    console.log("SetupPage: Payment verified. Rendering form.");
+    // Try to process registration here as a fallback
+    const pendingId = session.metadata?.pendingId;
+    if (pendingId) {
+      console.log(
+        "SetupPage: Found PendingID, attempting processing...",
+        pendingId,
+      );
+      // We import processRegistration dynamically or at top level if possible (it's server side)
+      // Since we are in a server component (SetupPage), we can call the action logic directly.
+      // However, processRegistration is in src/lib, so we need to import it.
+      try {
+        const { processRegistration } =
+          await import("@/lib/process-registration");
+        await processRegistration(
+          pendingId,
+          session.subscription as string,
+          session.customer as string,
+        );
+      } catch (e) {
+        console.error(
+          "SetupPage processing error (might be already processed):",
+          e,
+        );
+      }
+    }
+
+    const subdomain = session.metadata?.subdomain;
+    if (subdomain) {
+      redirect(`/provisionando?cliente=${subdomain}`);
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">
+        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center">
+          <h1 className="text-2xl font-bold mb-2">Pagamento Recebido!</h1>
+          <p>Estamos preparando sua loja. Aguarde um momento...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Case 2: No Session, but Plan selected (Setup Flow)
+  if (priceId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black py-10">
         <Suspense fallback={<div>Carregando...</div>}>
-          <SetupContent
-            customerEmail={session.customer_details?.email || ""}
-            customerName={session.customer_details?.name || ""}
-            sessionId={sessionId}
-          />
+          <SetupContent priceId={priceId} />
         </Suspense>
       </div>
     );
-  } catch (error) {
-    console.error("Error retrieving Stripe session:", error);
-    redirect("/payment-error");
   }
+
+  // Case 3: Neither
+  redirect("/");
 }
 
 import { SetupForm } from "@/components/setup/setup-form";
 
 // Client component for the UI
-function SetupContent({
-  customerEmail,
-  customerName,
-  sessionId,
-}: {
-  customerEmail: string;
-  customerName: string;
-  sessionId: string;
-}) {
+function SetupContent({ priceId }: { priceId: string }) {
   return (
-    <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center">
-      <div className="mb-6 flex justify-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-green-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
+    <div className="max-w-3xl w-full bg-white p-8 rounded-2xl shadow-xl text-center">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Configuração da Loja
+        </h1>
+        <p className="text-gray-600">
+          Preencha os dados abaixo para criar sua loja e prosseguir para o
+          pagamento.
+        </p>
       </div>
-      <h1 className="text-2xl font-bold mb-2">Pagamento Confirmado! 🎉</h1>
-      <p className="text-gray-600 mb-6">
-        Obrigado, {customerName}.<br />
-        Vamos ativar sua loja agora mesmo.
-      </p>
 
       <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 text-left">
-        <SetupForm sessionId={sessionId} customerEmail={customerEmail} />
+        <SetupForm priceId={priceId} />
       </div>
     </div>
   );

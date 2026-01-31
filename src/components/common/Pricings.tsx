@@ -7,16 +7,17 @@ import { AnimatedShinyText } from "../ui/animated-shiny-text";
 import { ShinyButton } from "../ui/shiny-button";
 import { cn } from "@/lib/utils";
 
-import { createCheckoutSession } from "@/actions/checkout";
+import { useRouter } from "next/navigation";
 
 export default function Pricing() {
+  const router = useRouter();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
 
-  const handleSubscribe = async (priceId?: string) => {
+  const handleSubscribe = (priceId?: string) => {
     if (!priceId) return;
-    await createCheckoutSession(priceId);
+    router.push(`/setup?plan=${priceId}`);
   };
 
   const plans = [
@@ -201,7 +202,7 @@ export default function Pricing() {
                 {plan.popular ? (
                   <ShinyButton
                     onClick={() => handleSubscribe(plan.priceId)}
-                    className={`w-full py-3 text-lg rounded-xl transition-all duration-300 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30`}
+                    className={`w-full py-3 text-lg rounded-xl transition-all duration-300 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30 text-center block`}
                   >
                     Assinar agora
                   </ShinyButton>

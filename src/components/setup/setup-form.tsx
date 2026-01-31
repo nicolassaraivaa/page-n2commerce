@@ -1,79 +1,55 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useActionState, useState, useEffect } from "react";
-import { createEcommerceAction } from "@/actions/create-ecommerce";
-import { createUserAndLinkAction } from "@/actions/create-user-and-link";
-import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { useActionState, useState } from "react";
+import { initiateCheckoutAction } from "@/actions/initiate-checkout";
+import {
+  Loader2,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  ChevronRight,
+  Store,
+  User,
+} from "lucide-react";
 import { PatternFormat } from "react-number-format";
 import { Input } from "@/components/ui/input";
 import { fetchCepData } from "@/helpers/cep";
 
-function CreateEcommerceButton() {
+function SubmitButton({ step }: { step: 1 | 2 }) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
       disabled={pending}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+      className={`w-full font-medium py-3 rounded-lg transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed ${
+        step === 1
+          ? "bg-blue-600 hover:bg-blue-700 text-white"
+          : "bg-green-600 hover:bg-green-700 text-white"
+      }`}
     >
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Criando loja...
+          {step === 1 ? "Processando..." : "Redirecionando para Pagamento..."}
         </>
       ) : (
-        "Criar Loja"
+        <>
+          {step === 1 ? "Prosseguir" : "Ir para Pagamento"}
+          {step === 1 && <ChevronRight className="ml-2 w-4 h-4" />}
+        </>
       )}
     </button>
   );
 }
 
-function CreateUserButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
-    >
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Criando usuário...
-        </>
-      ) : (
-        "Finalizar Configuração"
-      )}
-    </button>
-  );
-}
-
-export function SetupForm({
-  sessionId,
-  customerEmail,
-}: {
-  sessionId: string;
-  customerEmail?: string;
-}) {
+export function SetupForm({ priceId }: { priceId: string }) {
   const [step, setStep] = useState<1 | 2>(1);
-  const [ecommerceId, setEcommerceId] = useState<string | null>(null);
-  const [subdomain, setSubdomain] = useState<string | null>(null);
-
   /* @ts-ignore */
-  const [createEcommerceState, createEcommerceFormAction] = useActionState(
-    createEcommerceAction,
-    null
-  );
-  /* @ts-ignore */
-  const [createUserState, createUserFormAction] = useActionState(
-    createUserAndLinkAction,
-    null
-  );
+  const [state, formAction] = useActionState(initiateCheckoutAction, null);
 
-  const [showPassword, setShowPassword] = useState(false);
+  // Address State
   const [zipCodeValue, setZipCodeValue] = useState("");
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [street, setStreet] = useState("");
@@ -81,38 +57,14 @@ export function SetupForm({
   const [city, setCity] = useState("");
   const [stateValue, setStateValue] = useState("");
 
-  useEffect(() => {
-    if (
-      createEcommerceState &&
-      "success" in createEcommerceState &&
-      createEcommerceState.success &&
-      "ecommerceId" in createEcommerceState &&
-      createEcommerceState.ecommerceId
-    ) {
-      setEcommerceId(createEcommerceState.ecommerceId);
-      if ("subdomain" in createEcommerceState && createEcommerceState.subdomain) {
-        setSubdomain(createEcommerceState.subdomain);
-      }
-      setStep(2);
-    }
-  }, [createEcommerceState]);
+  const [storeData, setStoreData] = useState({
+    name: "",
+    subdomain: "",
+    contactPhone: "",
+    contactEmail: "",
+  });
 
-  useEffect(() => {
-    if (
-      createUserState &&
-      "success" in createUserState &&
-      createUserState.success
-    ) {
-      const sub = "subdomain" in createUserState && createUserState.subdomain
-        ? createUserState.subdomain
-        : null;
-      if (sub) {
-        window.location.href = `/provisionando?cliente=${encodeURIComponent(sub)}`;
-      } else if ("loginUrl" in createUserState && createUserState.loginUrl) {
-        window.location.href = createUserState.loginUrl;
-      }
-    }
-  }, [createUserState]);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleCepChange = async (value: string) => {
     const cleanZipCode = value.replace(/\D/g, "");
@@ -127,378 +79,424 @@ export function SetupForm({
         setNeighborhood(cepData.bairro || "");
         setCity(cepData.localidade || "");
         setStateValue(cepData.uf || "");
-      } else {
-        setStreet("");
-        setNeighborhood("");
-        setCity("");
-        setStateValue("");
       }
-
       setIsLoadingCep(false);
     }
   };
 
-  if (step === 2 && ecommerceId) {
-    return (
-      <div className="space-y-4 text-left">
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Etapa 2 de 2
-            </span>
-            <span className="text-xs text-gray-500">Criar Conta</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-600 h-2 rounded-full"
-              style={{ width: "100%" }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center gap-2 text-green-700">
-            <CheckCircle2 className="h-5 w-5" />
-            <span className="font-medium">Loja criada com sucesso!</span>
-          </div>
-          <p className="text-sm text-green-600 mt-1">
-            Agora vamos criar sua conta de administrador.
-          </p>
-        </div>
-
-        <form action={createUserFormAction} className="space-y-4">
-          <input type="hidden" name="ecommerceId" value={ecommerceId} />
-          {subdomain && (
-            <input type="hidden" name="subdomain" value={subdomain} />
-          )}
-
-          <div>
-            <label
-              htmlFor="adminName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Nome Completo
-            </label>
-            <input
-              type="text"
-              id="adminName"
-              name="adminName"
-              required
-              autoComplete="name"
-              placeholder="Seu nome completo"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email do Administrador
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              defaultValue={customerEmail}
-              required
-              autoComplete="email"
-              placeholder="seu@email.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Este será o email de acesso ao painel administrativo.
-            </p>
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Senha
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                required
-                autoComplete="new-password"
-                minLength={6}
-                placeholder="******"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Mínimo de 6 caracteres.
-            </p>
-          </div>
-
-          {createUserState &&
-            "error" in createUserState &&
-            createUserState.error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
-                ⚠️ {createUserState.error}
-              </div>
-            )}
-
-          <div className="pt-4">
-            <CreateUserButton />
-          </div>
-        </form>
-      </div>
-    );
-  }
+  const nextStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simple validation for Step 1 could be added here
+    setStep(2);
+  };
 
   return (
     <form
-      action={createEcommerceFormAction}
-      className="space-y-4 text-left"
+      action={formAction}
+      className="space-y-6 text-left"
       autoComplete="off"
     >
-      <input type="hidden" name="sessionId" value={sessionId} />
+      <input type="hidden" name="priceId" value={priceId} />
 
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            Etapa 1 de 2
-          </span>
-          <span className="text-xs text-gray-500">Configuração da Loja</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+      {/* Progress Indicator */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
           <div
-            className="bg-blue-600 h-2 rounded-full"
-            style={{ width: "50%" }}
-          ></div>
+            className={`flex flex-col items-center flex-1 ${step >= 1 ? "text-blue-600" : "text-gray-400"}`}
+          >
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 border-2 ${step >= 1 ? "border-blue-600 bg-blue-50" : "border-gray-300"}`}
+            >
+              <Store className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium">Dados da Loja</span>
+          </div>
+
+          <div className="w-full h-0.5 bg-gray-200 relative flex-1 mx-2">
+            <div
+              className={`absolute left-0 top-0 h-full bg-blue-600 transition-all duration-300 ${step === 2 ? "w-full" : "w-0"}`}
+            ></div>
+          </div>
+
+          <div
+            className={`flex flex-col items-center flex-1 ${step >= 2 ? "text-blue-600" : "text-gray-400"}`}
+          >
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 border-2 ${step >= 2 ? "border-blue-600 bg-blue-50" : "border-gray-300"}`}
+            >
+              <User className="w-5 h-5" />
+            </div>
+            <span className="text-sm font-medium">Administrador</span>
+          </div>
         </div>
       </div>
 
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Nome da Loja
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          required
-          autoComplete="off"
-          placeholder="Ex: Minha Loja"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="subdomain"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Subdomínio
-        </label>
-        <div className="flex rounded-md shadow-sm">
+      {/* STEP 1: Store Info */}
+      <div className={step === 1 ? "block space-y-4" : "hidden"}>
+        <div>
+          <label
+            htmlFor="storeName"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Nome da Loja
+          </label>
           <input
             type="text"
-            id="subdomain"
-            name="subdomain"
-            required
-            autoComplete="off"
-            pattern="[a-z0-9-]+"
-            placeholder="minhaloja"
-            className="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            name="storeName"
+            id="storeName"
+            required={step === 1}
+            value={storeData.name}
+            onChange={(e) =>
+              setStoreData({ ...storeData, name: e.target.value })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Minha Loja Inc."
           />
-          <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-            .bewear.com
-          </span>
         </div>
-        <p className="mt-1 text-xs text-gray-500">
-          Apenas letras minúsculas, números e hífens.
-        </p>
-      </div>
 
-      <div className="pt-4 border-t border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Endereço da Loja
-        </h3>
+        <div>
+          <label
+            htmlFor="subdomain"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Subdomínio
+          </label>
+          <div className="flex rounded-md shadow-sm">
+            <input
+              type="text"
+              name="subdomain"
+              id="subdomain"
+              required={step === 1}
+              pattern="[a-z0-9-]+"
+              value={storeData.subdomain}
+              onChange={(e) =>
+                setStoreData({ ...storeData, subdomain: e.target.value })
+              }
+              className="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="minhaloja"
+            />
+            <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+              .n2commerce.com.br
+            </span>
+          </div>
+        </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label
-              htmlFor="zipCode"
+              htmlFor="contactPhone"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              CEP
+              Telefone / WhatsApp
             </label>
-            <div className="relative">
-              <PatternFormat
-                format="#####-###"
-                allowEmptyFormatting
-                mask="_"
-                value={zipCodeValue}
-                onValueChange={(values) => handleCepChange(values.value)}
-                customInput={Input}
-                placeholder="00000-000"
-                disabled={isLoadingCep}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+            <PatternFormat
+              format="(##) #####-####"
+              mask="_"
+              allowEmptyFormatting
+              customInput={Input}
+              name="contactPhone"
+              id="contactPhone"
+              required={step === 1}
+              value={storeData.contactPhone}
+              onValueChange={(v) =>
+                setStoreData({ ...storeData, contactPhone: v.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="contactEmail"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Email de Contato
+            </label>
+            <input
+              type="email"
+              name="contactEmail"
+              id="contactEmail"
+              required={step === 1}
+              value={storeData.contactEmail}
+              onChange={(e) =>
+                setStoreData({ ...storeData, contactEmail: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="contato@loja.com"
+            />
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Endereço da Loja
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="zipCode"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                CEP
+              </label>
+              <div className="relative">
+                <PatternFormat
+                  format="#####-###"
+                  mask="_"
+                  allowEmptyFormatting
+                  customInput={Input}
+                  value={zipCodeValue}
+                  onValueChange={(v) => handleCepChange(v.value)}
+                  disabled={isLoadingCep}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                {isLoadingCep && (
+                  <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+                )}
+              </div>
+              <input
+                type="hidden"
+                name="zipCode"
+                value={zipCodeValue.replace(/\D/g, "")}
               />
-              {isLoadingCep && (
-                <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="street"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Rua
+                </label>
+                <input
+                  type="text"
+                  name="street"
+                  id="street"
+                  required={step === 1}
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="number"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Número
+                </label>
+                <input
+                  type="text"
+                  name="number"
+                  id="number"
+                  required={step === 1}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="complement"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Complemento <span className="text-gray-400">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                name="complement"
+                id="complement"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="neighborhood"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Bairro
+              </label>
+              <input
+                type="text"
+                name="neighborhood"
+                id="neighborhood"
+                required={step === 1}
+                value={neighborhood}
+                onChange={(e) => setNeighborhood(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="city"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Cidade
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  id="city"
+                  required={step === 1}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Estado
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  id="state"
+                  required={step === 1}
+                  value={stateValue}
+                  onChange={(e) => setStateValue(e.target.value)}
+                  maxLength={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none uppercase"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <button
+            onClick={nextStep}
+            type="button"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center"
+          >
+            Prosseguir <ChevronRight className="ml-2 w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* STEP 2: Admin Info */}
+      <div className={step === 2 ? "block space-y-4" : "hidden"}>
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-start gap-3 mb-6">
+          <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-blue-800 font-medium">
+              Dados da Loja salvos
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              {storeData.name} ({storeData.subdomain}.n2commerce.com.br)
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="ml-auto text-xs text-blue-700 hover:underline"
+          >
+            Editar
+          </button>
+        </div>
+
+        <div>
+          <label
+            htmlFor="adminName"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Nome Completo
+          </label>
+          <input
+            type="text"
+            name="adminName"
+            id="adminName"
+            required={step === 2}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Nome do Admin"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="adminCpf"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            CPF
+          </label>
+          <PatternFormat
+            format="###.###.###-##"
+            mask="_"
+            name="adminCpf"
+            id="adminCpf"
+            required={step === 2}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="adminEmail"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Email (Login)
+          </label>
+          <input
+            type="email"
+            name="adminEmail"
+            id="adminEmail"
+            required={step === 2}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="admin@email.com"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="adminPassword"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Senha
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="adminPassword"
+              id="adminPassword"
+              required={step === 2}
+              minLength={6}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
               )}
-            </div>
-            <input
-              type="hidden"
-              name="zipCode"
-              value={zipCodeValue.replace(/\D/g, "")}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="street"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Rua
-              </label>
-              <input
-                type="text"
-                id="street"
-                name="street"
-                value={street}
-                onChange={(e) => setStreet(e.target.value)}
-                required
-                autoComplete="street-address"
-                placeholder="Nome da rua"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="number"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Número
-              </label>
-              <input
-                type="text"
-                id="number"
-                name="number"
-                required
-                placeholder="123"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="complement"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Complemento <span className="text-gray-400">(opcional)</span>
-            </label>
-            <input
-              type="text"
-              id="complement"
-              name="complement"
-              autoComplete="address-line2"
-              placeholder="Apto, Bloco, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="neighborhood"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Bairro
-            </label>
-            <input
-              type="text"
-              id="neighborhood"
-              name="neighborhood"
-              value={neighborhood}
-              onChange={(e) => setNeighborhood(e.target.value)}
-              required
-              placeholder="Nome do bairro"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="city"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Cidade
-              </label>
-              <input
-                type="text"
-                id="city"
-                name="city"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                required
-                autoComplete="address-level2"
-                placeholder="Nome da cidade"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="state"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Estado
-              </label>
-              <input
-                type="text"
-                id="state"
-                name="state"
-                value={stateValue}
-                onChange={(e) => setStateValue(e.target.value.toUpperCase())}
-                required
-                autoComplete="address-level1"
-                placeholder="UF"
-                maxLength={2}
-                style={{ textTransform: "uppercase" }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            </button>
           </div>
         </div>
-      </div>
 
-      {createEcommerceState &&
-        "error" in createEcommerceState &&
-        createEcommerceState.error && (
+        {state && state.error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-200">
-            ⚠️ {createEcommerceState.error}
+            ⚠️ {state.error}
           </div>
         )}
 
-      <div className="pt-4">
-        <CreateEcommerceButton />
+        <div className="pt-4 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors"
+          >
+            Voltar
+          </button>
+          <SubmitButton step={2} />
+        </div>
       </div>
     </form>
   );

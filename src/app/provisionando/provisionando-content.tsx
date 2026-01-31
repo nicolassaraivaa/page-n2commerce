@@ -14,16 +14,17 @@ export function ProvisionandoContent({ clienteId }: { clienteId: string }) {
 
   useEffect(() => {
     let cancelled = false;
+
     async function poll() {
       try {
         const res = await fetch(
-          `/api/provisionamento/status/${encodeURIComponent(clienteId)}`
+          `/api/provisionamento/status/${encodeURIComponent(clienteId)}`,
         );
         if (cancelled) return;
         const data = await res.json();
-        setStatus(data.status ?? null);
         setUrl(data.url ?? null);
         setMensagem(data.mensagem || "Carregando...");
+        setStatus(data.status ?? null);
       } catch {
         if (!cancelled) setMensagem("Erro ao consultar status.");
       } finally {
@@ -55,7 +56,10 @@ export function ProvisionandoContent({ clienteId }: { clienteId: string }) {
             <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
           </div>
           <h1 className="text-xl font-bold mb-2">Provisionando</h1>
-          <p className="text-gray-600">{mensagem}</p>
+          <p className="text-gray-600">
+            Aguarde, estamos configurando sua loja... Isso pode levar alguns
+            minutos.
+          </p>
         </>
       ) : status === "ativo" && url ? (
         <>
@@ -77,7 +81,10 @@ export function ProvisionandoContent({ clienteId }: { clienteId: string }) {
               Acessar minha loja
               <ExternalLink className="h-4 w-4" />
             </a>
-            <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm">
+            <Link
+              href="/"
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
               Voltar ao site
             </Link>
           </div>
@@ -89,12 +96,11 @@ export function ProvisionandoContent({ clienteId }: { clienteId: string }) {
               <AlertCircle className="w-8 h-8 text-amber-600" />
             </div>
           </div>
-          <h1 className="text-xl font-bold mb-2">Problema no provisionamento</h1>
+          <h1 className="text-xl font-bold mb-2">
+            Problema no provisionamento
+          </h1>
           <p className="text-gray-600 mb-4">{mensagem}</p>
-          <Link
-            href="/"
-            className="inline-block text-blue-600 hover:underline"
-          >
+          <Link href="/" className="inline-block text-blue-600 hover:underline">
             Voltar ao início
           </Link>
         </>
